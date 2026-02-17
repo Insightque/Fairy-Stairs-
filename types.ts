@@ -11,6 +11,10 @@ export enum Difficulty {
 }
 
 export enum ItemType {
+  // Coin Items
+  COIN = 'COIN',             // 1코인
+  BIG_COIN = 'BIG_COIN',     // 10코인
+
   // Good Items
   AUTO_CLIMB = 'AUTO_CLIMB', // 10칸 자동 오르기
   SHIELD = 'SHIELD',         // 1회 방어
@@ -39,6 +43,8 @@ export interface StairData {
 export interface GameState {
   score: number;
   highScore: number;
+  totalCoins: number;   // 전체 보유 코인 (저장됨)
+  sessionCoins: number; // 이번 게임에서 획득한 코인
   isGameOver: boolean;
   gameStarted: boolean;
   timer: number;

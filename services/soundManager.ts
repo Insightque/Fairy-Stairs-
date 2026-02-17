@@ -49,6 +49,14 @@ export class SoundManager {
     this.playTone(660, 'sine', 0.08, 0.08);
   }
 
+  playCoin() {
+    if (this.isMuted || !this.ctx) return;
+    this.resume();
+    // High pitched ting sound
+    this.playTone(1200, 'sine', 0.1, 0.05);
+    setTimeout(() => this.playTone(1800, 'sine', 0.2, 0.05), 50);
+  }
+
   playFail() {
     if (this.isMuted || !this.ctx) return;
     this.resume();

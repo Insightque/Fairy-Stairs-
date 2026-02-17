@@ -13,7 +13,7 @@ import GameOverOverlay from './GameOverOverlay';
 
 interface GameContainerProps {
   gameState: GameState;
-  onGameOver: (score: number) => void;
+  onGameOver: (score: number, sessionCoins: number) => void;
   onReset: () => void;
   onRestart: () => void;
 }
@@ -30,6 +30,7 @@ const GameContainer: React.FC<GameContainerProps> = ({ gameState, onGameOver, on
   const [isJumping, setIsJumping] = useState(false);
   const [geminiComment, setGeminiComment] = useState("");
   const [isLoadingComment, setIsLoadingComment] = useState(false);
+  const [sessionCoins, setSessionCoins] = useState(0);
 
   // Item Effects State
   const [hasShield, setHasShield] = useState(false);
@@ -51,14 +52,31 @@ const GameContainer: React.FC<GameContainerProps> = ({ gameState, onGameOver, on
   // 아이템 생성 로직
   const generateRandomItem = (): ItemType | undefined => {
     const rand = Math.random();
-    // 약 50계단마다 1번 (2%) -> Good Item
-    if (rand < 0.02) {
-      return Math.random() < 0.5 ? ItemType.AUTO_CLIMB : ItemType.SHIELD;
+    
+    // 특수 아이템 등장 확률: 30계단 중 1번 (약 3.33%)
+    const PROBABILITY_SPECIAL = 1 / 30;
+    
+    // 1. 왕동전 (약 3.33%)
+    if (rand < PROBABILITY_SPECIAL) {
+        return ItemType.BIG_COIN;
     }
-    // 약 50계단마다 1번 (2%) -> Bad Item
-    else if (rand > 0.98) {
-      return Math.random() < 0.5 ? ItemType.GIANT : ItemType.SPEED_CURSE;
+    
+    // 2. 좋은 아이템 (약 3.33%) - 오토클라임 or 방패
+    if (rand < PROBABILITY_SPECIAL * 2) {
+        return Math.random() < 0.5 ? ItemType.AUTO_CLIMB : ItemType.SHIELD;
     }
+    
+    // 3. 나쁜 아이템 (약 3.33%) - 거대화 or 시간가속
+    if (rand < PROBABILITY_SPECIAL * 3) {
+        return Math.random() < 0.5 ? ItemType.GIANT : ItemType.SPEED_CURSE;
+    }
+
+    // 4. 일반 동전
+    // 특수 아이템이 없는 나머지 계단에서 2/3 (약 66.6%) 확률로 등장
+    if (Math.random() < 2 / 3) {
+      return ItemType.COIN;
+    }
+
     return undefined;
   };
 
@@ -93,6 +111,7 @@ const GameContainer: React.FC<GameContainerProps> = ({ gameState, onGameOver, on
     
     setStairs(list);
     setScore(0); 
+    setSessionCoins(0);
     setTimer(INITIAL_TIMER); 
     setIsDead(false);
     isDeadRef.current = false; // Reset lock
@@ -115,20 +134,20 @@ const GameContainer: React.FC<GameContainerProps> = ({ gameState, onGameOver, on
   useEffect(() => { initGame(); }, [initGame]);
 
   const handleDeath = async (reason: string) => {
-    // 이미 죽은 상태라면 중복 처리 방지 (Ref 사용)
     if (isDeadRef.current) return;
     
-    // 방패가 있고, 시간 초과가 아닌 '실수(WRONG_STEP)'일 경우 방어
     if (hasShield && reason === 'WRONG_STEP') {
         setHasShield(false);
         soundManager.playTurn(); 
         return;
     }
 
-    isDeadRef.current = true; // 즉시 잠금
+    isDeadRef.current = true; 
     setIsDead(true); 
     soundManager.playFail(); 
-    onGameOver(score);
+    
+    // 정확한 코인 수 전달
+    onGameOver(score, sessionCoins);
     
     setIsLoadingComment(true);
     const comment = await generateGameComment(selectedChar.id, score, reason);
@@ -148,7 +167,6 @@ const GameContainer: React.FC<GameContainerProps> = ({ gameState, onGameOver, on
         const decay = (settings.baseDecay + (score * 0.05 * settings.decayMult)) * curseMultiplier;
         const next = prev - (decay * dt);
         
-        // 상태 업데이트 내부에서 Side Effect(handleDeath)를 호출하므로 Ref lock이 필수적임
         if (next <= 0) { 
             handleDeath('TIME_OVER'); 
             return 0; 
@@ -159,7 +177,7 @@ const GameContainer: React.FC<GameContainerProps> = ({ gameState, onGameOver, on
     };
     const id = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(id);
-  }, [hasStarted, isDead, score, settings, isSpeedCurse]);
+  }, [hasStarted, isDead, score, settings, isSpeedCurse, sessionCoins]); // sessionCoins 추가하여 최신 값 참조 보장
 
   // Auto Climb Logic
   useEffect(() => {
@@ -190,25 +208,36 @@ const GameContainer: React.FC<GameContainerProps> = ({ gameState, onGameOver, on
 
   const applyItemEffect = (item: ItemType) => {
     switch (item) {
+      case ItemType.COIN:
+        setSessionCoins(prev => prev + 1);
+        soundManager.playCoin();
+        break;
+      case ItemType.BIG_COIN:
+        setSessionCoins(prev => prev + 10);
+        soundManager.playCoin();
+        break;
       case ItemType.AUTO_CLIMB:
         setIsAutoClimbing(true);
         autoClimbCountRef.current = 10;
+        soundManager.playStart(); 
         break;
       case ItemType.SHIELD:
         setHasShield(true);
+        soundManager.playStart(); 
         break;
       case ItemType.GIANT:
         setIsGiant(true);
         if (giantTimerRef.current) clearTimeout(giantTimerRef.current);
         giantTimerRef.current = setTimeout(() => setIsGiant(false), ITEM_INFO.GIANT.duration);
+        soundManager.playStart(); 
         break;
       case ItemType.SPEED_CURSE:
         setIsSpeedCurse(true);
         if (speedTimerRef.current) clearTimeout(speedTimerRef.current);
         speedTimerRef.current = setTimeout(() => setIsSpeedCurse(false), ITEM_INFO.SPEED_CURSE.duration);
+        soundManager.playStart(); 
         break;
     }
-    soundManager.playStart(); 
   };
 
   const handleMoveSuccess = (nextStair: StairData, targetDir: Direction, action: 'CLIMB' | 'TURN', isAuto: boolean) => {
@@ -223,8 +252,12 @@ const GameContainer: React.FC<GameContainerProps> = ({ gameState, onGameOver, on
       setIsJumping(true); 
       setTimeout(() => setIsJumping(false), 100);
 
-      if (nextStair.item && !isAuto) { 
-          applyItemEffect(nextStair.item);
+      if (nextStair.item) {
+         if (nextStair.item === ItemType.COIN || nextStair.item === ItemType.BIG_COIN) {
+             applyItemEffect(nextStair.item);
+         } else if (!isAuto) {
+             applyItemEffect(nextStair.item);
+         }
       }
   };
 
@@ -259,7 +292,7 @@ const GameContainer: React.FC<GameContainerProps> = ({ gameState, onGameOver, on
 
   return (
     <div className="flex flex-col w-full h-full relative">
-      <HUD score={score} timer={timer} />
+      <HUD score={score} timer={timer} sessionCoins={sessionCoins} />
       <StairWorld 
         stairs={stairs} 
         currentIndex={currentIndex} 

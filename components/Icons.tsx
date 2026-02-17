@@ -37,3 +37,17 @@ export const TurnIcon: React.FC<IconProps> = ({ className, color }) => (
     <path d="M3 3v5h5" />
   </svg>
 );
+
+export const CoinIcon: React.FC<{ className?: string }> = ({ className }) => (
+  <svg viewBox="0 0 32 32" className={className} fill="none" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="16" cy="16" r="14" fill="url(#coinGradient)" stroke="#D97706" strokeWidth="2"/>
+    <circle cx="16" cy="16" r="10" stroke="#FDE047" strokeWidth="1.5" opacity="0.8"/>
+    <path d="M16 8L18.5 13H24L19.5 16.5L21 22L16 18.5L11 22L12.5 16.5L8 13H13.5L16 8Z" fill="#FEF3C7" stroke="#D97706" strokeWidth="0.5"/>
+    <defs>
+      <linearGradient id="coinGradient" x1="16" y1="2" x2="16" y2="30" gradientUnits="userSpaceOnUse">
+        <stop stopColor="#FCD34D"/>
+        <stop offset="1" stopColor="#F59E0B"/>
+      </linearGradient>
+    </defs>
+  </svg>
+);

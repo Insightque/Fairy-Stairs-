@@ -16,6 +16,13 @@ export const CHARACTERS: Record<string, Character> = {
 
 export const CHARACTER_LIST = Object.values(CHARACTERS);
 
+export const CHARACTER_PRICES: Record<string, number> = {
+  kuromi: 0,
+  mymelody: 50,
+  hellokitty: 200,
+  pompompurin: 400
+};
+
 export const STAIR_COLORS = [
   'bg-white',
   'bg-pink-100/80',
@@ -30,7 +37,9 @@ export const DIFFICULTY_SETTINGS = {
   [Difficulty.HARD]: { decayMult: 1.8, baseDecay: 20, timerRefill: 7 }
 };
 
-export const ITEM_INFO: Record<ItemType, { emoji: string, label: string, duration?: number }> = {
+export const ITEM_INFO: Record<ItemType, { emoji: string, label: string, duration?: number, value?: number }> = {
+  [ItemType.COIN]: { emoji: '🪙', label: '코인', value: 1 },
+  [ItemType.BIG_COIN]: { emoji: '💰', label: '왕동전', value: 10 },
   [ItemType.AUTO_CLIMB]: { emoji: '🚀', label: '부스터' },
   [ItemType.SHIELD]: { emoji: '🛡️', label: '방패' },
   [ItemType.GIANT]: { emoji: '🍄', label: '거대화', duration: 10000 },

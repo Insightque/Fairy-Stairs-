@@ -1,8 +1,8 @@
 
 import React, { useState, useEffect } from 'react';
-import { StairData, Direction, Character } from '../../types';
+import { StairData, Direction, Character, ItemType } from '../../types';
 import { MAX_VISIBLE_STAIRS, STAIR_COLORS, ITEM_INFO } from '../../constants';
-import { ArrowIcon } from '../Icons';
+import { ArrowIcon, CoinIcon } from '../Icons';
 
 interface StairWorldProps {
   stairs: StairData[];
@@ -48,15 +48,29 @@ const StairWorld: React.FC<StairWorldProps> = ({
             className={`absolute w-[50px] h-[30px] rounded-2xl shadow-[0_6px_0_rgba(0,0,0,0.1)] border-2 border-white/60 ${STAIR_COLORS[stair.id % STAIR_COLORS.length]}`}
             style={{ left: stair.x - 25, top: stair.y }}
           >
-            {/* 50번째 계단 마커 (별) */}
+            {/* 50번째 계단 마커 (별) - 아이템이 없을 때만 표시 */}
             {stair.id % 50 === 0 && stair.id !== 0 && !stair.item && (
                <div className="absolute -top-5 left-1/2 -translate-x-1/2 text-[16px] animate-bounce">⭐</div>
             )}
 
             {/* 아이템 렌더링 - 획득 전(현재 인덱스보다 클 때)만 표시 */}
             {stair.item && stair.id > currentIndex && (
-              <div className="absolute -top-6 left-1/2 -translate-x-1/2 w-8 h-8 flex items-center justify-center animate-float">
-                <span className="text-xl filter drop-shadow-md">{ITEM_INFO[stair.item].emoji}</span>
+              <div className={`absolute left-1/2 -translate-x-1/2 flex items-center justify-center animate-float 
+                  ${stair.item === ItemType.BIG_COIN 
+                    ? '-top-9 w-10 h-10' 
+                    : stair.item === ItemType.COIN 
+                        ? '-top-7 w-7 h-7' 
+                        : '-top-6 w-8 h-8'}`}
+              >
+                {stair.item === ItemType.COIN ? (
+                    <CoinIcon className="w-full h-full drop-shadow-md" />
+                ) : stair.item === ItemType.BIG_COIN ? (
+                    <CoinIcon className="w-full h-full drop-shadow-lg" />
+                ) : (
+                    <span className="text-xl drop-shadow-md">
+                        {ITEM_INFO[stair.item].emoji}
+                    </span>
+                )}
               </div>
             )}
           </div>
@@ -69,9 +83,8 @@ const StairWorld: React.FC<StairWorldProps> = ({
             left: charPosition.x - 40,
             top: charPosition.y - 65,
             transformOrigin: 'bottom center',
-            // Giant 효과와 방향 전환 스케일을 합침. Giant일 경우 CSS class로 처리하지만 transform 충돌 방지를 위해 여기서 조정
             transform: `scaleX(${finalScale}) ${isGiant ? 'scale(2)' : ''}`, 
-            zIndex: isGiant ? 50 : 10, // 거대화 시 계단을 가려야 함
+            zIndex: isGiant ? 50 : 10,
           }}
         >
           <div 
