@@ -28,7 +28,7 @@ const GameOverOverlay: React.FC<GameOverOverlayProps> = ({
           {isLoadingComment ? (
             <span className="text-gray-400 text-sm animate-pulse">{character.name}가 할 말을 생각중...</span>
           ) : (
-            <p className="text-slate-600 text-sm font-bold leading-snug italic">"{comment}"</p>
+            <p className="text-slate-600 text-sm font-bold leading-snug italic word-keep-all">{comment}</p>
           )}
         </div>
 

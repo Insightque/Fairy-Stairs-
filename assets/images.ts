@@ -12,6 +12,7 @@ export const ASSET_PATHS = {
   kuromi: "https://i.imgur.com/PVUt6fE.png",
   hellokitty: "https://i.imgur.com/IdQc3Cd.gif",
   mymelody: "https://i.imgur.com/ZDjGvQ7.gif",
+  pompompurin: "https://i.imgur.com/x1rmmGC.gif",
   
   // 배경 이미지 (Unsplash Source)
   background: "https://images.unsplash.com/photo-1579546929518-9e396f3cc809?q=80&w=2000&auto=format&fit=crop"

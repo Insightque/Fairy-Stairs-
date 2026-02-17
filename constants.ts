@@ -9,8 +9,8 @@ export const INITIAL_TIMER = 100;
 
 export const CHARACTERS: Record<string, Character> = {
   kuromi: { id: 'kuromi', name: '쿠로미', imageUrl: ASSET_PATHS.kuromi, color: 'purple', emoji: '😈' },
-  hellokitty: { id: 'hellokitty', name: '헬로키티', imageUrl: ASSET_PATHS.hellokitty, color: 'red', emoji: '🎀' },
   mymelody: { id: 'mymelody', name: '마이멜로디', imageUrl: ASSET_PATHS.mymelody, color: 'pink', emoji: '🐰' },
+  hellokitty: { id: 'hellokitty', name: '헬로키티', imageUrl: ASSET_PATHS.hellokitty, color: 'red', emoji: '🎀' },
 };
 
 export const CHARACTER_LIST = Object.values(CHARACTERS);
@@ -25,6 +25,6 @@ export const STAIR_COLORS = [
 
 export const DIFFICULTY_SETTINGS = {
   [Difficulty.EASY]: { decayMult: 0.5, baseDecay: 6, timerRefill: 15 },
-  [Difficulty.NORMAL]: { decayMult: 1.0, baseDecay: 12, timerRefill: 10 },
-  [Difficulty.HARD]: { decayMult: 1.6, baseDecay: 18, timerRefill: 7 }
+  [Difficulty.NORMAL]: { decayMult: 1.2, baseDecay: 15, timerRefill: 10 },
+  [Difficulty.HARD]: { decayMult: 1.8, baseDecay: 20, timerRefill: 7 }
 };
