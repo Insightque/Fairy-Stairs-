@@ -47,7 +47,7 @@ const X_STEP = 35;
 const MAX_VISIBLE_STAIRS = 15;
 
 const CHARACTERS: Record<string, Character & { emoji: string }> = {
-  kuromi: { id: 'kuromi', name: '쿠로미', imageUrl: 'https://raw.githubusercontent.com/Aris-In/Kawaii-Assets/main/kuromi.png', color: 'bg-purple-100', emoji: '😈' },
+  kuromi: { id: 'kuromi', name: '쿠로미', imageUrl: 'https://i.imgur.com/P3a8p9r.png', color: 'bg-purple-100', emoji: '😈' },
   cinnamoroll: { id: 'cinnamoroll', name: '시나모롤', imageUrl: 'https://raw.githubusercontent.com/Aris-In/Kawaii-Assets/main/cinnamoroll.png', color: 'bg-blue-50', emoji: '☁️' },
   mymelody: { id: 'mymelody', name: '마이멜로디', imageUrl: 'https://raw.githubusercontent.com/Aris-In/Kawaii-Assets/main/mymelody.png', color: 'bg-pink-100', emoji: '🐰' },
   pompompurin: { id: 'pompompurin', name: '폼폼푸린', imageUrl: 'https://raw.githubusercontent.com/Aris-In/Kawaii-Assets/main/pompompurin.png', color: 'bg-yellow-100', emoji: '🍮' },

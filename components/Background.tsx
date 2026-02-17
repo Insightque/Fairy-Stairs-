@@ -1,36 +1,35 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { ASSET_PATHS } from '../assets/images';
 
 const Background: React.FC = () => {
-  const [isLoaded, setIsLoaded] = useState(false);
-
   return (
-    <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden bg-[#b9e9f3]">
-      {/* 1. Base Sky Gradient (제공된 이미지의 배경색감) */}
-      <div className="absolute inset-0 bg-gradient-to-b from-[#b9e9f3] via-[#d4f3f8] to-[#ffffff]"></div>
-
-      {/* 2. Soft Cloud-like Overlay */}
-      <div className="absolute inset-0 opacity-40 mix-blend-overlay"
-        style={{
-          backgroundImage: 'radial-gradient(circle at 50% 50%, #fff, transparent 70%)',
-          transform: 'scale(2)'
+    <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden bg-[#e0f7fa]">
+      {/* 1. 메인 배경 이미지 (로컬 images/background.png) */}
+      <div 
+        className="absolute inset-0 bg-cover bg-center transition-opacity duration-1000 opacity-100"
+        style={{ 
+          backgroundImage: `url('${ASSET_PATHS.background}')`,
         }}
       />
-      
-      {/* 3. Decorative Sparkle & Stars (이미지에 있는 별 장식 재현) */}
-      <div className="absolute inset-0 opacity-30" 
+
+      {/* 2. 게임 요소 가독성을 위한 최소한의 블러와 오버레이 */}
+      <div className="absolute inset-0 bg-white/10 backdrop-blur-[0.5px]"></div>
+
+      {/* 3. 몽환적인 분위기를 위한 상단/하단 그라데이션 */}
+      <div className="absolute inset-0 bg-gradient-to-b from-white/20 via-transparent to-black/10"></div>
+
+      {/* 4. 장식용 별가루/반짝이 효과 (배경을 해치지 않는 수준) */}
+      <div className="absolute inset-0 opacity-10" 
            style={{ 
-             backgroundImage: `radial-gradient(circle, #fff 1.5px, transparent 2px), 
-                               radial-gradient(circle, #fff 1px, transparent 1.5px)`,
-             backgroundSize: '80px 80px, 120px 120px',
-             backgroundPosition: '0 0, 40px 40px'
+             backgroundImage: `radial-gradient(circle, #fff 1px, transparent 1.5px)`,
+             backgroundSize: '60px 60px',
            }}>
       </div>
-
-      {/* 4. Sanrio Theme Elements (Soft Gradients for character focus) */}
-      <div className="absolute top-10 left-10 w-32 h-32 bg-pink-200/30 blur-[60px] rounded-full animate-pulse"></div>
-      <div className="absolute bottom-20 right-10 w-48 h-48 bg-purple-200/30 blur-[80px] rounded-full animate-pulse"></div>
+      
+      {/* 5. 부드러운 애니메이션 광원 */}
+      <div className="absolute top-[-15%] left-[-15%] w-[70%] h-[70%] bg-pink-100/20 blur-[130px] rounded-full animate-pulse"></div>
+      <div className="absolute bottom-[-15%] right-[-15%] w-[70%] h-[70%] bg-blue-100/20 blur-[130px] rounded-full animate-pulse"></div>
     </div>
   );
 };
