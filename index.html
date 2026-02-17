@@ -1,0 +1,96 @@
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Sophia Jiyu's Fairy Stairs</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Jua&display=swap" rel="stylesheet">
+    <style>
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%; /* Fallback */
+            height: 100dvh;
+            overflow: hidden;
+            background-color: #b4f0f8; /* 기본 배경색 */
+            font-family: 'Jua', sans-serif;
+            touch-action: manipulation;
+            user-select: none;
+        }
+
+        #root {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        /* Utility Styles */
+        .character-img {
+            image-rendering: -webkit-optimize-contrast;
+            filter: drop-shadow(0 6px 4px rgba(0, 0, 0, 0.1));
+            transition: transform 0.1s ease-out;
+        }
+        
+        @keyframes jumping {
+            0% { transform: scale(1, 1) translateY(0); }
+            50% { transform: scale(0.9, 1.1) translateY(-15px); }
+            100% { transform: scale(1, 1) translateY(0); }
+        }
+        .char-jump {
+            animation: jumping 0.15s ease-out;
+        }
+
+        .btn-active:active {
+            transform: scale(0.95);
+            filter: brightness(0.95);
+        }
+
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        .floating-element {
+             animation: float 4s ease-in-out infinite;
+        }
+        .floating-element-delay {
+             animation: float 4s ease-in-out infinite;
+             animation-delay: 2s;
+        }
+        @keyframes float {
+            0% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-15px) rotate(5deg); }
+            100% { transform: translateY(0px) rotate(0deg); }
+        }
+
+        .next-hint-pulse {
+            animation: soft-pulse 1.5s infinite;
+        }
+        @keyframes soft-pulse {
+            0% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.6); }
+            70% { box-shadow: 0 0 0 12px rgba(255, 255, 255, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0); }
+        }
+    </style>
+<script type="importmap">
+{
+  "imports": {
+    "react-dom/": "https://esm.sh/react-dom@^19.2.4/",
+    "@google/genai": "https://esm.sh/@google/genai@^1.41.0",
+    "react/": "https://esm.sh/react@^19.2.4/",
+    "react": "https://esm.sh/react@^19.2.4"
+  }
+}
+</script>
+</head>
+<body>
+    <div id="root"></div>
+</body>
+</html>
