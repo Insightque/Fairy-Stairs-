@@ -27,6 +27,11 @@ const StairWorld: React.FC<StairWorldProps> = ({
     setImgError(false);
   }, [character.id]);
 
+  // 쿠로미와 마이멜로디일 경우 기본 방향 반전 (이미지 원본 방향 이슈 해결)
+  const isFlippedChar = ['kuromi', 'mymelody'].includes(character.id);
+  const dirScale = charDirection === Direction.LEFT ? -1 : 1;
+  const finalScale = isFlippedChar ? -dirScale : dirScale;
+
   return (
     <div className="flex-1 relative overflow-hidden z-10 w-full font-['Jua']">
       <div 
@@ -53,7 +58,7 @@ const StairWorld: React.FC<StairWorldProps> = ({
             left: charPosition.x - 40,
             top: charPosition.y - 65,
             transformOrigin: 'bottom center',
-            transform: `scaleX(${charDirection === Direction.LEFT ? -1 : 1})`,
+            transform: `scaleX(${finalScale})`,
           }}
         >
           <div 
@@ -62,7 +67,7 @@ const StairWorld: React.FC<StairWorldProps> = ({
             style={{ transformOrigin: 'bottom center' }}
           >
             {/* Direction Indicator */}
-            <div className="absolute -top-8 left-1/2 -translate-x-1/2 z-30">
+            <div className="absolute -top-8 left-1/2 -translate-x-1/2 z-30" style={{ transform: `scaleX(${isFlippedChar ? -1 : 1})` }}>
               <ArrowIcon 
                 direction={Direction.RIGHT} 
                 className={`w-8 h-8 drop-shadow-[0_2px_4px_rgba(255,255,255,0.8)] ${charDirection === Direction.LEFT ? 'text-pink-500' : 'text-cyan-500'}`}
@@ -86,7 +91,7 @@ const StairWorld: React.FC<StairWorldProps> = ({
           </div>
 
           {!hasStarted && !isDead && (
-            <div className="absolute -top-24 left-1/2 -translate-x-1/2 whitespace-nowrap bg-white/90 backdrop-blur-sm px-4 py-2 rounded-full text-base font-bold text-cyan-600 animate-pulse shadow-lg border-2 border-cyan-100 z-40">
+            <div className="absolute -top-24 left-1/2 -translate-x-1/2 whitespace-nowrap bg-white/90 backdrop-blur-sm px-4 py-2 rounded-full text-base font-bold text-cyan-600 animate-pulse shadow-lg border-2 border-cyan-100 z-40" style={{ transform: `scaleX(${isFlippedChar ? -1 : 1})` }}>
               Ready? Go! 🚀
             </div>
           )}

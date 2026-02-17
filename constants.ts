@@ -10,13 +10,7 @@ export const INITIAL_TIMER = 100;
 export const CHARACTERS: Record<string, Character> = {
   kuromi: { id: 'kuromi', name: '쿠로미', imageUrl: ASSET_PATHS.kuromi, color: 'purple', emoji: '😈' },
   hellokitty: { id: 'hellokitty', name: '헬로키티', imageUrl: ASSET_PATHS.hellokitty, color: 'red', emoji: '🎀' },
-  cinnamoroll: { id: 'cinnamoroll', name: '시나모롤', imageUrl: ASSET_PATHS.cinnamoroll, color: 'blue', emoji: '☁️' },
   mymelody: { id: 'mymelody', name: '마이멜로디', imageUrl: ASSET_PATHS.mymelody, color: 'pink', emoji: '🐰' },
-  pompompurin: { id: 'pompompurin', name: '폼폼푸린', imageUrl: ASSET_PATHS.pompompurin, color: 'yellow', emoji: '🍮' },
-  pochacco: { id: 'pochacco', name: '포차코', imageUrl: ASSET_PATHS.pochacco, color: 'green', emoji: '🐶' },
-  keroppi: { id: 'keroppi', name: '케로피', imageUrl: ASSET_PATHS.keroppi, color: 'green', emoji: '🐸' },
-  hangyodon: { id: 'hangyodon', name: '한교동', imageUrl: ASSET_PATHS.hangyodon, color: 'cyan', emoji: '🐟' },
-  badtzmaru: { id: 'badtzmaru', name: '배드바츠마루', imageUrl: ASSET_PATHS.badtzmaru, color: 'black', emoji: '🐧' },
 };
 
 export const CHARACTER_LIST = Object.values(CHARACTERS);

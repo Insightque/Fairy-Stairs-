@@ -30,9 +30,6 @@ const Menu: React.FC<MenuProps> = ({ highScore, onStart, initialCharacterId }) =
   }, [selectedCharId]);
 
   const handleImgError = (id: string, url: string) => {
-    // 실제로 이미지가 없는 경우 브라우저가 이 함수를 호출합니다.
-    console.error(`[이미지 로드 실패] ID: ${id} | 경로: ${url}`);
-    console.info("팁: 프로젝트 루트의 images 폴더에 파일명이 정확히 일치하는 파일이 있는지 확인하세요.");
     setImgErrors(prev => ({ ...prev, [id]: true }));
   };
 
@@ -48,6 +45,9 @@ const Menu: React.FC<MenuProps> = ({ highScore, onStart, initialCharacterId }) =
     { type: Difficulty.NORMAL, label: "보통", color: "bg-pink-400" },
     { type: Difficulty.HARD, label: "매움", color: "bg-purple-500" }
   ];
+
+  // 이미지를 좌우 반전해야 하는 캐릭터 목록
+  const shouldFlip = (id: string) => ['kuromi', 'mymelody'].includes(id);
 
   return (
     <div className="flex flex-col h-full w-full z-10 font-['Jua'] relative overflow-hidden select-none">
@@ -79,11 +79,10 @@ const Menu: React.FC<MenuProps> = ({ highScore, onStart, initialCharacterId }) =
             ) : (
               <img 
                 src={currentCharacter.imageUrl} 
-                className="w-[85%] h-[85%] object-contain z-10 animate-float" 
+                className={`w-[85%] h-[85%] object-contain z-10 animate-float ${shouldFlip(currentCharacter.id) ? 'scale-x-[-1]' : ''}`} 
                 alt={currentCharacter.name} 
                 loading="eager"
                 onError={() => handleImgError(currentCharacter.id, currentCharacter.imageUrl)}
-                onLoad={() => console.log(`[이미지 로드 성공] ${currentCharacter.name}`)}
               />
             )}
             <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 bg-white px-6 py-1.5 rounded-full shadow-xl border-2 border-pink-200 z-20 whitespace-nowrap">
@@ -96,8 +95,8 @@ const Menu: React.FC<MenuProps> = ({ highScore, onStart, initialCharacterId }) =
       {/* Character Selector */}
       <div className="flex-none pb-8 px-6 w-full max-w-sm mx-auto flex flex-col gap-4 z-20">
         <div className="w-full">
-          <p className="text-[12px] text-cyan-800 font-bold mb-2 ml-1 opacity-80 uppercase tracking-wider">친구를 골라주세요</p>
-          <div className="flex gap-3 overflow-x-auto py-3 no-scrollbar px-1 snap-x">
+          <p className="text-[12px] text-cyan-800 font-bold mb-2 ml-1 opacity-80 uppercase tracking-wider text-center">친구를 골라주세요</p>
+          <div className="flex gap-3 overflow-x-auto py-3 no-scrollbar px-1 snap-x justify-center">
             {CHARACTER_LIST.map((char) => (
               <button
                 key={char.id}
@@ -110,7 +109,7 @@ const Menu: React.FC<MenuProps> = ({ highScore, onStart, initialCharacterId }) =
                   <img 
                     src={char.imageUrl} 
                     alt={char.name} 
-                    className="w-full h-full object-contain p-1.5" 
+                    className={`w-full h-full object-contain p-1.5 ${shouldFlip(char.id) ? 'scale-x-[-1]' : ''}`} 
                     onError={() => handleImgError(char.id, char.imageUrl)}
                   />
                 )}

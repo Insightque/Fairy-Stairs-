@@ -1,23 +1,18 @@
 
 /**
  * Sanrio Character & Background Assets
- * 안정적인 서비스를 위해 외부 CDN/URL을 우선 사용합니다.
+ * 
+ * [이미지 경로 설정]
+ * 현재 로컬 경로(/assets/images/...)는 환경에 따라 404 에러가 발생할 수 있습니다.
+ * 안정적인 실행을 위해 온라인 URL(Imgur)을 기본값으로 사용합니다.
  */
 
 export const ASSET_PATHS = {
-  // 캐릭터 이미지: GitHub Raw 링크 실패 해결을 위해 작동 확인된 Imgur 링크로 교체
+  // 에러 수정: 로컬 경로 대신 작동하는 Imgur 링크 사용
   kuromi: "https://i.imgur.com/PVUt6fE.png",
+  hellokitty: "https://i.imgur.com/IdQc3Cd.gif",
+  mymelody: "https://i.imgur.com/ZDjGvQ7.gif",
   
-  // 나머지 캐릭터들 (외부 URL 유지)
-  hellokitty: "https://i.imgur.com/79YqIUK.png",
-  cinnamoroll: "https://i.imgur.com/Hl3u6oH.png",
-  mymelody: "https://i.imgur.com/r6O0nFk.png",
-  pompompurin: "https://i.imgur.com/O5M3h8W.png",
-  pochacco: "https://i.imgur.com/5S1pAtn.png",
-  keroppi: "https://i.imgur.com/xHqYFvS.png",
-  hangyodon: "https://i.imgur.com/vHqQ9vI.png",
-  badtzmaru: "https://i.imgur.com/u5jS4oZ.png",
-  
-  // 배경 이미지: 원격 URL로 변경
-  background: "https://github.com/Insightque/Fairy-Stairs-/blob/main/images/background.png"
+  // 배경 이미지 (Unsplash Source)
+  background: "https://images.unsplash.com/photo-1579546929518-9e396f3cc809?q=80&w=2000&auto=format&fit=crop"
 };
