@@ -19,5 +19,5 @@ export const ASSET_PATHS = {
   badtzmaru: "https://i.imgur.com/u5jS4oZ.png",
   
   // 배경 이미지: 원격 URL로 변경
-  background: "https://images.unsplash.com/photo-1579546929518-9e396f3cc809?q=80&w=2000&auto=format&fit=crop"
+  background: "https://github.com/Insightque/Fairy-Stairs-/blob/main/images/background.png"
 };
