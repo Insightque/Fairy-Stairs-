@@ -42,7 +42,8 @@ const App: React.FC = () => {
     unlockedCharacters: safeParseJSON('fairy_stairs_unlocked', ["kuromi"]),
     selectedCharacter: 'kuromi',
     currentStairIndex: 0,
-    difficulty: Difficulty.NORMAL
+    difficulty: Difficulty.NORMAL,
+    reviveCount: 0 
   });
 
   const startGame = (difficulty: Difficulty, characterId: string) => {
@@ -55,7 +56,8 @@ const App: React.FC = () => {
       sessionCoins: 0, // 세션 코인 초기화
       timer: 100,
       difficulty,
-      selectedCharacter: characterId
+      selectedCharacter: characterId,
+      reviveCount: 0 // 게임 새로 시작 시 부활 횟수 초기화
     }));
   };
 
@@ -85,7 +87,7 @@ const App: React.FC = () => {
   };
 
   const resetToMenu = () => {
-    setGameState(prev => ({ ...prev, gameStarted: false, isGameOver: false, sessionCoins: 0 }));
+    setGameState(prev => ({ ...prev, gameStarted: false, isGameOver: false, sessionCoins: 0, reviveCount: 0 }));
   };
 
   const handlePurchaseCharacter = (characterId: string) => {
@@ -104,6 +106,26 @@ const App: React.FC = () => {
 
       localStorage.setItem('fairy_stairs_coins', newCoins.toString());
       localStorage.setItem('fairy_stairs_unlocked', JSON.stringify(newUnlocked));
+      return true;
+    }
+    return false;
+  };
+
+  // 이어하기 로직: 10 * 3^reviveCount 코인 차감
+  const handleRevive = (): boolean => {
+    const reviveCost = 10 * Math.pow(3, gameState.reviveCount);
+    
+    if (gameState.totalCoins >= reviveCost) {
+      const newCoins = gameState.totalCoins - reviveCost;
+      
+      setGameState(prev => ({
+        ...prev,
+        totalCoins: newCoins,
+        isGameOver: false, // 게임 오버 상태 해제
+        reviveCount: prev.reviveCount + 1 // 부활 횟수 증가
+      }));
+      
+      localStorage.setItem('fairy_stairs_coins', newCoins.toString());
       return true;
     }
     return false;
@@ -129,6 +151,7 @@ const App: React.FC = () => {
             onGameOver={handleGameOver} 
             onReset={resetToMenu}
             onRestart={() => startGame(gameState.difficulty, gameState.selectedCharacter)}
+            onRevive={handleRevive}
           />
         )}
       </div>

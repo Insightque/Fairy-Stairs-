@@ -18,9 +18,9 @@ export const CHARACTER_LIST = Object.values(CHARACTERS);
 
 export const CHARACTER_PRICES: Record<string, number> = {
   kuromi: 0,
-  mymelody: 50,
-  hellokitty: 200,
-  pompompurin: 400
+  mymelody: 300,
+  hellokitty: 600,
+  pompompurin: 900
 };
 
 export const STAIR_COLORS = [

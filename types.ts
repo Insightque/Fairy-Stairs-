@@ -52,4 +52,5 @@ export interface GameState {
   selectedCharacter: string;
   currentStairIndex: number;
   difficulty: Difficulty;
+  reviveCount: number;  // 이어하기 횟수 (이어하기 비용 계산용)
 }

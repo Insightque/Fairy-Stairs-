@@ -16,9 +16,10 @@ interface GameContainerProps {
   onGameOver: (score: number, sessionCoins: number) => void;
   onReset: () => void;
   onRestart: () => void;
+  onRevive: () => boolean;
 }
 
-const GameContainer: React.FC<GameContainerProps> = ({ gameState, onGameOver, onReset, onRestart }) => {
+const GameContainer: React.FC<GameContainerProps> = ({ gameState, onGameOver, onReset, onRestart, onRevive }) => {
   const [score, setScore] = useState(0);
   const [timer, setTimer] = useState(INITIAL_TIMER);
   const [isDead, setIsDead] = useState(false);
@@ -48,6 +49,9 @@ const GameContainer: React.FC<GameContainerProps> = ({ gameState, onGameOver, on
   const lastTimeRef = useRef(Date.now());
   const selectedChar = CHARACTERS[gameState.selectedCharacter] || CHARACTERS.kuromi;
   const settings = DIFFICULTY_SETTINGS[gameState.difficulty];
+
+  // 다음 부활 비용 계산: 10 * 3^reviveCount
+  const reviveCost = 10 * Math.pow(3, gameState.reviveCount);
 
   // 아이템 생성 로직
   const generateRandomItem = (): ItemType | undefined => {
@@ -155,6 +159,21 @@ const GameContainer: React.FC<GameContainerProps> = ({ gameState, onGameOver, on
     setIsLoadingComment(false);
   };
 
+  const handleReviveGame = () => {
+    const success = onRevive();
+    if (success) {
+        soundManager.playStart(); // 부활 효과음
+        setIsDead(false);
+        isDeadRef.current = false;
+        setTimer(100); // 타이머 완전 회복
+        setHasStarted(false); // 사용자 입력 대기 상태로 변경 (바로 죽지 않게)
+        lastTimeRef.current = Date.now(); // 타이머 틱 초기화
+        
+        // 부활 시 페널티나 효과가 필요하다면 여기에 추가 (예: 쉴드 부여)
+        setHasShield(true); 
+    }
+  };
+
   // Timer Loop
   useEffect(() => {
     if (!hasStarted || isDead) return;
@@ -177,7 +196,7 @@ const GameContainer: React.FC<GameContainerProps> = ({ gameState, onGameOver, on
     };
     const id = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(id);
-  }, [hasStarted, isDead, score, settings, isSpeedCurse, sessionCoins]); // sessionCoins 추가하여 최신 값 참조 보장
+  }, [hasStarted, isDead, score, settings, isSpeedCurse, sessionCoins]);
 
   // Auto Climb Logic
   useEffect(() => {
@@ -316,8 +335,14 @@ const GameContainer: React.FC<GameContainerProps> = ({ gameState, onGameOver, on
 
       {isDead && (
         <GameOverOverlay 
-          score={score} character={selectedChar} comment={geminiComment} 
-          isLoadingComment={isLoadingComment} onReset={onReset} onRestart={onRestart} 
+          score={score} 
+          character={selectedChar} 
+          comment={geminiComment} 
+          isLoadingComment={isLoadingComment} 
+          onReset={onReset} 
+          onRestart={onRestart}
+          onRevive={handleReviveGame}
+          reviveCost={reviveCost}
         />
       )}
     </div>
