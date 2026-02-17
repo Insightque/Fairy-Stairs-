@@ -1,8 +1,8 @@
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Direction, StairData, GameState, Difficulty, Character } from '../types';
-import { GoogleGenAI } from "@google/genai";
 import { soundManager } from './SoundManager';
+import { generateGameComment } from '../services/aiService';
 
 interface GameProps {
   gameState: GameState;
@@ -79,7 +79,6 @@ const Game: React.FC<GameProps> = ({ gameState, onGameOver, onReset, onRestart }
   const [isLoadingComment, setIsLoadingComment] = useState(false);
 
   const lastTimeRef = useRef<number>(Date.now());
-  const aiRef = useRef<GoogleGenAI | null>(null);
 
   const selectedChar = CHARACTERS[gameState.selectedCharacter] || CHARACTERS.kuromi;
 
@@ -89,16 +88,6 @@ const Game: React.FC<GameProps> = ({ gameState, onGameOver, onReset, onRestart }
     [Difficulty.HARD]: { decayMult: 1.5, baseDecay: 15 }
   };
   const settings = difficultySettings[gameState.difficulty];
-
-  useEffect(() => {
-    try {
-      if (process.env.API_KEY) {
-        aiRef.current = new GoogleGenAI({ apiKey: process.env.API_KEY });
-      }
-    } catch (e) {
-      console.error("AI Init Error", e);
-    }
-  }, []);
 
   const createNextStair = (lastStair: StairData, id: number): StairData => {
     const changeDir = Math.random() > 0.5;
@@ -174,28 +163,10 @@ const Game: React.FC<GameProps> = ({ gameState, onGameOver, onReset, onRestart }
     soundManager.playFail();
     onGameOver(finalScore); 
     
-    if (aiRef.current && finalScore > 5) {
-      setIsLoadingComment(true);
-      try {
-        const prompt = `
-          The player played 'Infinite Stairs' with character '${selectedChar.name}'.
-          Score: ${finalScore}. Reason for game over: ${reason}.
-          Write a short, funny, 1-sentence reaction from ${selectedChar.name}'s perspective in Korean.
-          Use emojis. Don't be too mean, be cute but cheeky.
-        `;
-        const response = await aiRef.current.models.generateContent({
-          model: 'gemini-2.5-flash-latest',
-          contents: prompt,
-        });
-        setGeminiComment(response.text);
-      } catch (e) {
-        // Ignore error
-      } finally {
-        setIsLoadingComment(false);
-      }
-    } else {
-        setGeminiComment(finalScore === 0 ? "한 계단도 못 올라갔어? 🥺" : "조금 더 힘내봐! 🔥");
-    }
+    setIsLoadingComment(true);
+    const comment = await generateGameComment(selectedChar.id, finalScore, reason);
+    setGeminiComment(comment);
+    setIsLoadingComment(false);
   };
 
   const handleInput = (action: 'CLIMB' | 'TURN') => {
@@ -239,7 +210,9 @@ const Game: React.FC<GameProps> = ({ gameState, onGameOver, onReset, onRestart }
     }
 
     if (success) {
-      soundManager.playStep();
+      if (action === 'CLIMB') soundManager.playStep();
+      else soundManager.playTurn();
+      
       setCurrentStairIndex(nextIndex);
       setCharPosition({ x: nextStair.x, y: nextStair.y });
       setCharDirection(newDir);
@@ -312,7 +285,6 @@ const Game: React.FC<GameProps> = ({ gameState, onGameOver, onReset, onRestart }
                 transform: `${isJumping ? 'scale(1.1) translateY(-24px)' : 'scale(1) translateY(0)'} scaleX(${charDirection === Direction.LEFT ? -1 : 1})`,
               }}
             >
-               {/* Small Floating Direction Arrow (Simplified) */}
                <div className="absolute -top-10 left-1/2 -translate-x-1/2 z-30 animate-bounce pointer-events-none">
                    <ArrowIcon 
                        direction={charDirection} 
@@ -333,7 +305,6 @@ const Game: React.FC<GameProps> = ({ gameState, onGameOver, onReset, onRestart }
                  </div>
                )}
                
-               {/* Hint Bubble (Initial) */}
                {!hasStarted && !isDead && (
                  <div className="absolute -top-20 left-1/2 -translate-x-1/2 whitespace-nowrap bg-white px-3 py-1 rounded-full text-xs font-bold text-cyan-600 animate-pulse shadow-md border-2 border-cyan-100 z-40">
                    Go Up!
@@ -342,7 +313,6 @@ const Game: React.FC<GameProps> = ({ gameState, onGameOver, onReset, onRestart }
             </div>
          </div>
          
-         {/* Game Over Overlay */}
          {isDead && (
            <div className="absolute inset-0 bg-black/60 backdrop-blur-sm z-30 flex flex-col items-center justify-center p-6 text-center animate-fadeIn" onClick={(e) => e.stopPropagation()}>
              <div className="bg-white rounded-[2rem] p-6 w-full max-w-xs shadow-[0_10px_40px_rgba(0,0,0,0.2)] border-[6px] border-cyan-200 relative">
@@ -357,7 +327,7 @@ const Game: React.FC<GameProps> = ({ gameState, onGameOver, onReset, onRestart }
                 
                 <div className="bg-slate-100 rounded-xl p-3 mb-6 min-h-[60px] flex items-center justify-center">
                    {isLoadingComment ? (
-                     <span className="text-gray-400 text-sm animate-pulse">쿠로미가 할 말을 생각중...</span>
+                     <span className="text-gray-400 text-sm animate-pulse">{selectedChar.name}가 할 말을 생각중...</span>
                    ) : (
                      <p className="text-slate-600 text-sm font-bold word-keep-all leading-snug">"{geminiComment}"</p>
                    )}
@@ -382,9 +352,7 @@ const Game: React.FC<GameProps> = ({ gameState, onGameOver, onReset, onRestart }
          )}
       </div>
 
-      {/* 3. Controls (Compact & Responsive) */}
       <div className="h-[25%] min-h-[120px] max-h-[180px] w-full flex gap-3 p-4 pb-6 z-20 items-stretch bg-gradient-to-t from-[#b4f0f8]/50 to-transparent">
-         {/* LEFT: Climb */}
          <button
            className="flex-1 rounded-[1.5rem] sm:rounded-[2rem] bg-gradient-to-b from-pink-400 to-pink-500 border-b-[6px] sm:border-b-[8px] border-pink-700 active:border-b-0 active:translate-y-2 transition-all shadow-[0_8px_20px_rgba(236,72,153,0.4)] flex flex-col items-center justify-center group touch-manipulation relative overflow-hidden"
            onPointerDown={(e) => {
@@ -392,7 +360,6 @@ const Game: React.FC<GameProps> = ({ gameState, onGameOver, onReset, onRestart }
              handleInput('CLIMB'); 
            }}
          >
-            {/* Shimmer effect for climb button */}
             <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity" />
 
             <div className="mb-1 p-1.5 sm:p-2.5 bg-white/20 rounded-full backdrop-blur-sm shadow-inner group-active:scale-90 transition-transform">
@@ -404,7 +371,6 @@ const Game: React.FC<GameProps> = ({ gameState, onGameOver, onReset, onRestart }
             </span>
          </button>
 
-         {/* RIGHT: Turn */}
          <button
            className="flex-1 rounded-[1.5rem] sm:rounded-[2rem] bg-white border-b-[6px] sm:border-b-[8px] border-gray-200 active:border-b-0 active:translate-y-2 transition-all shadow-lg flex flex-col items-center justify-center group touch-manipulation relative"
            onPointerDown={(e) => { 

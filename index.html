@@ -35,13 +35,15 @@
             transition: transform 0.1s ease-out;
         }
         
-        @keyframes jumping {
+        /* Snappy Jump and Squash Animation */
+        @keyframes jump-squash {
             0% { transform: scale(1, 1) translateY(0); }
-            50% { transform: scale(0.9, 1.1) translateY(-15px); }
-            100% { transform: scale(1, 1) translateY(0); }
+            20% { transform: scale(0.7, 1.3) translateY(-30px); } /* Stretch & Jump */
+            70% { transform: scale(1.3, 0.7) translateY(0); }    /* Squash on Land */
+            100% { transform: scale(1, 1) translateY(0); }       /* Recover */
         }
-        .char-jump {
-            animation: jumping 0.15s ease-out;
+        .animate-jump-squash {
+            animation: jump-squash 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
 
         .btn-active:active {
@@ -70,13 +72,12 @@
             100% { transform: translateY(0px) rotate(0deg); }
         }
 
-        .next-hint-pulse {
-            animation: soft-pulse 1.5s infinite;
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
         }
-        @keyframes soft-pulse {
-            0% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.6); }
-            70% { box-shadow: 0 0 0 12px rgba(255, 255, 255, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0); }
+        .animate-fadeIn {
+            animation: fadeIn 0.3s ease-out forwards;
         }
     </style>
 <script type="importmap">

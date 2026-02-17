@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import Game from './components/Game';
+import GameContainer from './components/Game/GameContainer';
 import Menu from './components/Menu';
 import Background from './components/Background';
 import { GameState, Difficulty } from './types';
@@ -27,8 +27,7 @@ const App: React.FC = () => {
       isGameOver: false,
       score: 0,
       timer: 100,
-      currentStairIndex: 0,
-      difficulty: difficulty,
+      difficulty,
       selectedCharacter: characterId
     }));
   };
@@ -47,20 +46,12 @@ const App: React.FC = () => {
   };
 
   const resetToMenu = () => {
-    setGameState(prev => ({
-      ...prev,
-      gameStarted: false,
-      isGameOver: false,
-      score: 0
-    }));
+    setGameState(prev => ({ ...prev, gameStarted: false, isGameOver: false }));
   };
 
   return (
     <div className="w-full h-screen relative overflow-hidden flex justify-center bg-black/5">
-      {/* 배경 컴포넌트 (전체 화면 꽉 채움) */}
       <Background />
-      
-      {/* 게임 컨테이너: 모바일 비율 유지 (최대 너비 480px) */}
       <div className="relative z-10 w-full max-w-[480px] h-full shadow-2xl overflow-hidden flex flex-col">
         {!gameState.gameStarted ? (
           <Menu 
@@ -69,11 +60,11 @@ const App: React.FC = () => {
             initialCharacterId={gameState.selectedCharacter}
           />
         ) : (
-          <Game 
+          <GameContainer 
             key={gameId}
             gameState={gameState} 
             onGameOver={handleGameOver} 
-            onReset= {resetToMenu}
+            onReset={resetToMenu}
             onRestart={() => startGame(gameState.difficulty, gameState.selectedCharacter)}
           />
         )}

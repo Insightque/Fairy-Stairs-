@@ -15,6 +15,7 @@ export interface Character {
   name: string;
   imageUrl: string;
   color: string;
+  emoji: string;
 }
 
 export interface StairData {
