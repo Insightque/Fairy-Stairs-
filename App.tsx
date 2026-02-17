@@ -13,7 +13,7 @@ const App: React.FC = () => {
     isGameOver: false,
     gameStarted: false,
     timer: 100,
-    unlockedCharacters: ['kuromi', 'hellokitty', 'mymelody'],
+    unlockedCharacters: ['kuromi', 'hellokitty', 'mymelody', 'pompompurin'],
     selectedCharacter: 'kuromi',
     currentStairIndex: 0,
     difficulty: Difficulty.NORMAL
