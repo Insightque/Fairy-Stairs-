@@ -32,8 +32,8 @@ export const STAIR_COLORS = [
 ];
 
 export const DIFFICULTY_SETTINGS = {
-  [Difficulty.EASY]: { decayMult: 0.5, baseDecay: 6, timerRefill: 15 },
-  [Difficulty.NORMAL]: { decayMult: 1.2, baseDecay: 15, timerRefill: 10 },
+  [Difficulty.EASY]: { decayMult: 1.2, baseDecay: 15, timerRefill: 10 },
+  [Difficulty.NORMAL]: { decayMult: 1.5, baseDecay: 17, timerRefill: 8 },
   [Difficulty.HARD]: { decayMult: 1.8, baseDecay: 20, timerRefill: 7 }
 };
 

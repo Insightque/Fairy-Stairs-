@@ -1,9 +1,9 @@
 
 import React, { useState, useEffect } from 'react';
-import { Difficulty } from '../types';
+import { Difficulty, GameState } from '../types';
 import { CHARACTER_LIST, CHARACTER_PRICES } from '../constants';
 import { soundManager } from '../services/soundManager';
-import { CoinIcon } from './Icons';
+import { CoinIcon, SettingsIcon } from './Icons';
 
 interface MenuProps {
   highScore: number;
@@ -12,15 +12,21 @@ interface MenuProps {
   onStart: (difficulty: Difficulty, characterId: string) => void;
   onPurchase: (characterId: string) => boolean;
   initialCharacterId: string;
+  onImportData: (data: Partial<GameState>) => void;
+  onResetData: () => void;
 }
 
 const Menu: React.FC<MenuProps> = ({ 
-  highScore, totalCoins, unlockedCharacters, onStart, onPurchase, initialCharacterId 
+  highScore, totalCoins, unlockedCharacters, onStart, onPurchase, initialCharacterId, onImportData, onResetData 
 }) => {
   const [selectedDifficulty, setSelectedDifficulty] = useState<Difficulty>(Difficulty.NORMAL);
   const [selectedCharId, setSelectedCharId] = useState(initialCharacterId);
   const [isMuted, setIsMuted] = useState(soundManager.getMuted());
   const [imgErrors, setImgErrors] = useState<Record<string, boolean>>({});
+  
+  // Settings Modal State
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [importCode, setImportCode] = useState("");
 
   const currentCharacter = CHARACTER_LIST.find(c => c.id === selectedCharId) || CHARACTER_LIST[0];
   const isLocked = !unlockedCharacters.includes(selectedCharId);
@@ -55,7 +61,6 @@ const Menu: React.FC<MenuProps> = ({
     { type: Difficulty.HARD, label: "매움", color: "bg-purple-500" }
   ];
 
-  // 이미지를 좌우 반전해야 하는 캐릭터 목록
   const shouldFlip = (id: string) => ['kuromi', 'mymelody'].includes(id);
 
   const handleStartOrBuy = () => {
@@ -64,11 +69,64 @@ const Menu: React.FC<MenuProps> = ({
         soundManager.playCoin();
         onPurchase(selectedCharId);
       } else {
-        soundManager.playFail(); // 돈 부족
+        soundManager.playFail(); 
       }
     } else {
       soundManager.playStart();
       onStart(selectedDifficulty, selectedCharId);
+    }
+  };
+
+  // --- Settings Handlers ---
+
+  const handleSaveData = () => {
+    const dataToSave = {
+      highScore,
+      totalCoins,
+      unlockedCharacters
+    };
+    // Base64로 간단하게 인코딩 (보안 목적이 아닌 단순 난독화)
+    const encoded = btoa(JSON.stringify(dataToSave));
+    navigator.clipboard.writeText(encoded).then(() => {
+        alert("✨ 저장 코드가 복사되었습니다! 메모장에 붙여넣어 보관하세요.");
+    }).catch(() => {
+        alert("복사에 실패했습니다. 권한을 확인해주세요.");
+    });
+  };
+
+  const handleLoadData = () => {
+    if (!importCode) {
+        alert("저장 코드를 입력해주세요!");
+        return;
+    }
+    try {
+        const decoded = atob(importCode);
+        const parsed = JSON.parse(decoded);
+        
+        if (typeof parsed.highScore === 'number' && typeof parsed.totalCoins === 'number' && Array.isArray(parsed.unlockedCharacters)) {
+            if (window.confirm("현재 데이터를 덮어쓰고 불러오시겠습니까?")) {
+                onImportData(parsed);
+                setIsSettingsOpen(false);
+                setImportCode("");
+                alert("✨ 데이터 불러오기 성공!");
+            }
+        } else {
+            alert("잘못된 코드 형식입니다.");
+        }
+    } catch (e) {
+        alert("코드를 읽을 수 없습니다. 올바른 저장 코드인지 확인해주세요.");
+    }
+  };
+
+  const handleReset = () => {
+    const confirm1 = window.confirm("정말로 모든 기록을 초기화하시겠습니까? (되돌릴 수 없습니다!)");
+    if (confirm1) {
+        const confirm2 = window.confirm("진짜로요? 모든 코인과 캐릭터가 사라집니다! 😭");
+        if (confirm2) {
+            onResetData();
+            setIsSettingsOpen(false);
+            alert("초기화되었습니다.");
+        }
     }
   };
 
@@ -86,12 +144,17 @@ const Menu: React.FC<MenuProps> = ({
                <span className="text-cyan-700 text-sm font-bold">🏆 {highScore}</span>
             </div>
           </div>
-          <button onClick={toggleMute} className="p-2 bg-white/80 backdrop-blur-md rounded-full shadow-md border-2 border-white active:scale-90 transition-transform">
-            {isMuted ? '🔇' : '🔊'}
-          </button>
+          <div className="flex gap-2">
+            <button onClick={() => setIsSettingsOpen(true)} className="p-2 bg-white/80 backdrop-blur-md rounded-full shadow-md border-2 border-white active:scale-90 transition-transform">
+               <SettingsIcon className="w-5 h-5 text-gray-600" />
+            </button>
+            <button onClick={toggleMute} className="p-2 bg-white/80 backdrop-blur-md rounded-full shadow-md border-2 border-white active:scale-90 transition-transform">
+                {isMuted ? '🔇' : '🔊'}
+            </button>
+          </div>
         </div>
         <div className="text-center mt-6">
-          <h2 className="text-[11px] font-black text-white bg-pink-400/80 px-4 py-1 rounded-full inline-block backdrop-blur-sm tracking-widest uppercase mb-1">Sanrio Fairy Town</h2>
+          <h2 className="text-[11px] font-black text-white bg-pink-400/80 px-4 py-1 rounded-full inline-block backdrop-blur-sm tracking-widest uppercase mb-1">Sophia Jiyu's Fairy Town</h2>
           <div className="flex flex-col items-center justify-center leading-none">
             <h1 className="text-5xl font-black text-white drop-shadow-[0_4px_0_#0e7490]" style={{WebkitTextStroke: '1px #0e7490'}}>무한의</h1>
             <h1 className="text-5xl font-black text-pink-400 drop-shadow-[0_3px_0_white] -mt-1">산리오 계단</h1>
@@ -196,6 +259,66 @@ const Menu: React.FC<MenuProps> = ({
           )}
         </button>
       </div>
+
+      {/* Settings Modal */}
+      {isSettingsOpen && (
+        <div className="absolute inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-6 animate-fadeIn">
+            <div className="bg-white rounded-[2rem] w-full max-w-sm p-6 shadow-2xl border-[4px] border-pink-200 relative flex flex-col gap-4">
+                <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-pink-100 text-pink-500 font-black px-4 py-1 rounded-full border-2 border-white shadow-sm">
+                    설정
+                </div>
+                <button 
+                    onClick={() => setIsSettingsOpen(false)}
+                    className="absolute top-4 right-4 text-gray-400 hover:text-gray-600"
+                >
+                    ✕
+                </button>
+
+                <div className="mt-4 flex flex-col gap-4">
+                    {/* Save Section */}
+                    <div className="bg-cyan-50 p-4 rounded-xl border border-cyan-100">
+                        <h3 className="font-bold text-cyan-700 mb-1 flex items-center gap-2">📤 기록 저장 (내보내기)</h3>
+                        <p className="text-xs text-cyan-600/80 mb-3 word-keep-all">
+                            현재 기록(코인, 캐릭터)을 코드로 복사합니다. 다른 곳에 붙여넣어 보관하세요.
+                        </p>
+                        <button 
+                            onClick={handleSaveData}
+                            className="w-full py-2 bg-cyan-500 text-white rounded-lg font-bold shadow-md active:scale-95 transition-transform"
+                        >
+                            코드 복사하기
+                        </button>
+                    </div>
+
+                    {/* Load Section */}
+                    <div className="bg-pink-50 p-4 rounded-xl border border-pink-100">
+                        <h3 className="font-bold text-pink-700 mb-1 flex items-center gap-2">📥 기록 불러오기</h3>
+                        <textarea 
+                            value={importCode}
+                            onChange={(e) => setImportCode(e.target.value)}
+                            placeholder="저장된 코드를 여기에 붙여넣으세요..."
+                            className="w-full text-xs p-2 rounded-lg border border-pink-200 mb-2 focus:outline-none focus:ring-2 focus:ring-pink-300 resize-none h-16"
+                        />
+                        <button 
+                            onClick={handleLoadData}
+                            className="w-full py-2 bg-pink-400 text-white rounded-lg font-bold shadow-md active:scale-95 transition-transform"
+                        >
+                            불러오기
+                        </button>
+                    </div>
+
+                    {/* Reset Section */}
+                    <div className="pt-2 border-t border-gray-100">
+                        <button 
+                            onClick={handleReset}
+                            className="w-full text-xs text-red-400 underline hover:text-red-600"
+                        >
+                            모든 데이터 초기화
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+      )}
     </div>
   );
 };

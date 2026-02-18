@@ -51,17 +51,19 @@ const GameContainer: React.FC<GameContainerProps> = ({ gameState, onGameOver, on
   const settings = DIFFICULTY_SETTINGS[gameState.difficulty];
 
   // 다음 부활 비용 계산: 10 * 3^reviveCount
-  const reviveCost = 10 * Math.pow(3, gameState.reviveCount);
+  const reviveCost = 50 * Math.pow(3, gameState.reviveCount);
 
   // 아이템 생성 로직
   const generateRandomItem = (): ItemType | undefined => {
     const rand = Math.random();
     
     // 특수 아이템 등장 확률: 30계단 중 1번 (약 3.33%)
-    const PROBABILITY_SPECIAL = 1 / 30;
+    const PROBABILITY_SPECIAL = 1 / 50;
+    const PROBABILITY_SPECIAL_BAD = 1 / 30;
+    const PROBABILITY_BIG_COIN = 1 / 50;
     
     // 1. 왕동전 (약 3.33%)
-    if (rand < PROBABILITY_SPECIAL) {
+    if (rand < PROBABILITY_BIG_COIN) {
         return ItemType.BIG_COIN;
     }
     
@@ -71,13 +73,13 @@ const GameContainer: React.FC<GameContainerProps> = ({ gameState, onGameOver, on
     }
     
     // 3. 나쁜 아이템 (약 3.33%) - 거대화 or 시간가속
-    if (rand < PROBABILITY_SPECIAL * 3) {
+    if (rand < PROBABILITY_SPECIAL_BAD * 3) {
         return Math.random() < 0.5 ? ItemType.GIANT : ItemType.SPEED_CURSE;
     }
 
     // 4. 일반 동전
     // 특수 아이템이 없는 나머지 계단에서 2/3 (약 66.6%) 확률로 등장
-    if (Math.random() < 2 / 3) {
+    if (Math.random() < 1 / 4) {
       return ItemType.COIN;
     }
 

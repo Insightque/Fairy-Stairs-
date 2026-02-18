@@ -131,6 +131,39 @@ const App: React.FC = () => {
     return false;
   };
 
+  // 데이터 불러오기 처리
+  const handleImportData = (data: Partial<GameState>) => {
+    if (typeof data.highScore === 'number') localStorage.setItem('kuromi_high_score', data.highScore.toString());
+    if (typeof data.totalCoins === 'number') localStorage.setItem('fairy_stairs_coins', data.totalCoins.toString());
+    if (Array.isArray(data.unlockedCharacters)) localStorage.setItem('fairy_stairs_unlocked', JSON.stringify(data.unlockedCharacters));
+
+    setGameState(prev => ({
+      ...prev,
+      highScore: data.highScore ?? prev.highScore,
+      totalCoins: data.totalCoins ?? prev.totalCoins,
+      unlockedCharacters: data.unlockedCharacters ?? prev.unlockedCharacters,
+      // 불러온 데이터에 현재 선택된 캐릭터가 없으면 기본값으로
+      selectedCharacter: (data.unlockedCharacters && !data.unlockedCharacters.includes(prev.selectedCharacter)) 
+        ? 'kuromi' 
+        : prev.selectedCharacter
+    }));
+  };
+
+  // 데이터 초기화 처리
+  const handleResetData = () => {
+    localStorage.removeItem('kuromi_high_score');
+    localStorage.removeItem('fairy_stairs_coins');
+    localStorage.removeItem('fairy_stairs_unlocked');
+    
+    setGameState(prev => ({
+      ...prev,
+      highScore: 0,
+      totalCoins: 0,
+      unlockedCharacters: ["kuromi"],
+      selectedCharacter: 'kuromi'
+    }));
+  };
+
   return (
     <div className="w-full h-screen relative overflow-hidden flex justify-center bg-black/5">
       <Background />
@@ -143,6 +176,8 @@ const App: React.FC = () => {
             onStart={startGame} 
             onPurchase={handlePurchaseCharacter}
             initialCharacterId={gameState.selectedCharacter}
+            onImportData={handleImportData}
+            onResetData={handleResetData}
           />
         ) : (
           <GameContainer 

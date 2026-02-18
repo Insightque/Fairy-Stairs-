@@ -83,9 +83,9 @@ const Game: React.FC<GameProps> = ({ gameState, onGameOver, onReset, onRestart }
   const selectedChar = CHARACTERS[gameState.selectedCharacter] || CHARACTERS.kuromi;
 
   const difficultySettings = {
-    [Difficulty.EASY]: { decayMult: 0.5, baseDecay: 5 },
-    [Difficulty.NORMAL]: { decayMult: 1.0, baseDecay: 10 },
-    [Difficulty.HARD]: { decayMult: 1.5, baseDecay: 15 }
+    [Difficulty.EASY]: { decayMult: 1.2, baseDecay: 15 },
+    [Difficulty.NORMAL]: { decayMult: 1.5, baseDecay: 17 },
+    [Difficulty.HARD]: { decayMult: 1.8, baseDecay: 20 }
   };
   const settings = difficultySettings[gameState.difficulty];
 
