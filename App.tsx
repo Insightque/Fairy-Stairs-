@@ -43,7 +43,8 @@ const App: React.FC = () => {
     selectedCharacter: 'kuromi',
     currentStairIndex: 0,
     difficulty: Difficulty.NORMAL,
-    reviveCount: 0 
+    reviveCount: 0,
+    isButtonSwapped: localStorage.getItem('fairy_stairs_button_swapped') === 'true'
   });
 
   const startGame = (difficulty: Difficulty, characterId: string) => {
@@ -131,11 +132,19 @@ const App: React.FC = () => {
     return false;
   };
 
+  // 버튼 위치 변경 토글
+  const toggleButtonOrder = () => {
+    const nextState = !gameState.isButtonSwapped;
+    setGameState(prev => ({ ...prev, isButtonSwapped: nextState }));
+    localStorage.setItem('fairy_stairs_button_swapped', nextState.toString());
+  };
+
   // 데이터 불러오기 처리
   const handleImportData = (data: Partial<GameState>) => {
     if (typeof data.highScore === 'number') localStorage.setItem('kuromi_high_score', data.highScore.toString());
     if (typeof data.totalCoins === 'number') localStorage.setItem('fairy_stairs_coins', data.totalCoins.toString());
     if (Array.isArray(data.unlockedCharacters)) localStorage.setItem('fairy_stairs_unlocked', JSON.stringify(data.unlockedCharacters));
+    if (typeof data.isButtonSwapped === 'boolean') localStorage.setItem('fairy_stairs_button_swapped', data.isButtonSwapped.toString());
 
     setGameState(prev => ({
       ...prev,
@@ -145,7 +154,8 @@ const App: React.FC = () => {
       // 불러온 데이터에 현재 선택된 캐릭터가 없으면 기본값으로
       selectedCharacter: (data.unlockedCharacters && !data.unlockedCharacters.includes(prev.selectedCharacter)) 
         ? 'kuromi' 
-        : prev.selectedCharacter
+        : prev.selectedCharacter,
+      isButtonSwapped: data.isButtonSwapped ?? prev.isButtonSwapped
     }));
   };
 
@@ -154,13 +164,15 @@ const App: React.FC = () => {
     localStorage.removeItem('kuromi_high_score');
     localStorage.removeItem('fairy_stairs_coins');
     localStorage.removeItem('fairy_stairs_unlocked');
+    localStorage.removeItem('fairy_stairs_button_swapped');
     
     setGameState(prev => ({
       ...prev,
       highScore: 0,
       totalCoins: 0,
       unlockedCharacters: ["kuromi"],
-      selectedCharacter: 'kuromi'
+      selectedCharacter: 'kuromi',
+      isButtonSwapped: false
     }));
   };
 
@@ -173,11 +185,13 @@ const App: React.FC = () => {
             highScore={gameState.highScore} 
             totalCoins={gameState.totalCoins}
             unlockedCharacters={gameState.unlockedCharacters}
+            isButtonSwapped={gameState.isButtonSwapped}
             onStart={startGame} 
             onPurchase={handlePurchaseCharacter}
             initialCharacterId={gameState.selectedCharacter}
             onImportData={handleImportData}
             onResetData={handleResetData}
+            onToggleButtonSwap={toggleButtonOrder}
           />
         ) : (
           <GameContainer 

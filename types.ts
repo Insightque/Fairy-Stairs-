@@ -53,4 +53,5 @@ export interface GameState {
   currentStairIndex: number;
   difficulty: Difficulty;
   reviveCount: number;  // 이어하기 횟수 (이어하기 비용 계산용)
+  isButtonSwapped: boolean; // 버튼 위치 변경 여부 (True: 방향전환|오르기, False: 오르기|방향전환)
 }

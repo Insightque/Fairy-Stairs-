@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Direction, StairData, GameState, Difficulty, ItemType } from '../../types';
 import { 
@@ -40,8 +39,9 @@ const GameContainer: React.FC<GameContainerProps> = ({ gameState, onGameOver, on
   const [isAutoClimbing, setIsAutoClimbing] = useState(false);
   
   const autoClimbCountRef = useRef(0);
-  const giantTimerRef = useRef<NodeJS.Timeout | null>(null);
-  const speedTimerRef = useRef<NodeJS.Timeout | null>(null);
+  // Use number for timeout refs in browser environment
+  const giantTimerRef = useRef<number | null>(null);
+  const speedTimerRef = useRef<number | null>(null);
   
   // Game Over Lock to prevent multiple triggers
   const isDeadRef = useRef(false);
@@ -77,9 +77,13 @@ const GameContainer: React.FC<GameContainerProps> = ({ gameState, onGameOver, on
         return Math.random() < 0.5 ? ItemType.GIANT : ItemType.SPEED_CURSE;
     }
 
-    // 4. 일반 동전
-    // 특수 아이템이 없는 나머지 계단에서 2/3 (약 66.6%) 확률로 등장
-    if (Math.random() < 1 / 4) {
+    // 4. 일반 동전 (난이도별 확률 적용)
+    // 이지: 1/5 (20%), 보통: 2/5 (40%), 어려움: 3/5 (60%)
+    let coinChance = 0.2;
+    if (gameState.difficulty === Difficulty.NORMAL) coinChance = 0.4;
+    if (gameState.difficulty === Difficulty.HARD) coinChance = 0.6;
+
+    if (Math.random() < coinChance) {
       return ItemType.COIN;
     }
 
@@ -249,13 +253,13 @@ const GameContainer: React.FC<GameContainerProps> = ({ gameState, onGameOver, on
       case ItemType.GIANT:
         setIsGiant(true);
         if (giantTimerRef.current) clearTimeout(giantTimerRef.current);
-        giantTimerRef.current = setTimeout(() => setIsGiant(false), ITEM_INFO.GIANT.duration);
+        giantTimerRef.current = window.setTimeout(() => setIsGiant(false), ITEM_INFO.GIANT.duration);
         soundManager.playStart(); 
         break;
       case ItemType.SPEED_CURSE:
         setIsSpeedCurse(true);
         if (speedTimerRef.current) clearTimeout(speedTimerRef.current);
-        speedTimerRef.current = setTimeout(() => setIsSpeedCurse(false), ITEM_INFO.SPEED_CURSE.duration);
+        speedTimerRef.current = window.setTimeout(() => setIsSpeedCurse(false), ITEM_INFO.SPEED_CURSE.duration);
         soundManager.playStart(); 
         break;
     }
@@ -326,7 +330,11 @@ const GameContainer: React.FC<GameContainerProps> = ({ gameState, onGameOver, on
         hasShield={hasShield}
         isGiant={isGiant}
       />
-      <Controls charDirection={charDirection} onAction={handleAction} />
+      <Controls 
+        charDirection={charDirection} 
+        onAction={handleAction} 
+        isButtonSwapped={gameState.isButtonSwapped} 
+      />
       
       <div className="absolute top-20 left-4 flex flex-col gap-2 z-20 pointer-events-none">
         {hasShield && <div className="animate-bounce text-2xl drop-shadow-md">🛡️</div>}

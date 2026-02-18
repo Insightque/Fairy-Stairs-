@@ -3,21 +3,24 @@ import React, { useState, useEffect } from 'react';
 import { Difficulty, GameState } from '../types';
 import { CHARACTER_LIST, CHARACTER_PRICES } from '../constants';
 import { soundManager } from '../services/soundManager';
-import { CoinIcon, SettingsIcon } from './Icons';
+import { CoinIcon, SettingsIcon, ArrowIcon, TurnIcon } from './Icons';
+import { Direction } from '../types';
 
 interface MenuProps {
   highScore: number;
   totalCoins: number;
   unlockedCharacters: string[];
+  isButtonSwapped: boolean;
   onStart: (difficulty: Difficulty, characterId: string) => void;
   onPurchase: (characterId: string) => boolean;
   initialCharacterId: string;
   onImportData: (data: Partial<GameState>) => void;
   onResetData: () => void;
+  onToggleButtonSwap: () => void;
 }
 
 const Menu: React.FC<MenuProps> = ({ 
-  highScore, totalCoins, unlockedCharacters, onStart, onPurchase, initialCharacterId, onImportData, onResetData 
+  highScore, totalCoins, unlockedCharacters, isButtonSwapped, onStart, onPurchase, initialCharacterId, onImportData, onResetData, onToggleButtonSwap
 }) => {
   const [selectedDifficulty, setSelectedDifficulty] = useState<Difficulty>(Difficulty.NORMAL);
   const [selectedCharId, setSelectedCharId] = useState(initialCharacterId);
@@ -83,9 +86,9 @@ const Menu: React.FC<MenuProps> = ({
     const dataToSave = {
       highScore,
       totalCoins,
-      unlockedCharacters
+      unlockedCharacters,
+      isButtonSwapped
     };
-    // Base64로 간단하게 인코딩 (보안 목적이 아닌 단순 난독화)
     const encoded = btoa(JSON.stringify(dataToSave));
     navigator.clipboard.writeText(encoded).then(() => {
         alert("✨ 저장 코드가 복사되었습니다! 메모장에 붙여넣어 보관하세요.");
@@ -154,7 +157,7 @@ const Menu: React.FC<MenuProps> = ({
           </div>
         </div>
         <div className="text-center mt-6">
-          <h2 className="text-[11px] font-black text-white bg-pink-400/80 px-4 py-1 rounded-full inline-block backdrop-blur-sm tracking-widest uppercase mb-1">Sophia Jiyu's Fairy Town</h2>
+          <h2 className="text-[11px] font-black text-white bg-pink-400/80 px-4 py-1 rounded-full inline-block backdrop-blur-sm tracking-widest uppercase mb-1">Sanrio Fairy Town</h2>
           <div className="flex flex-col items-center justify-center leading-none">
             <h1 className="text-5xl font-black text-white drop-shadow-[0_4px_0_#0e7490]" style={{WebkitTextStroke: '1px #0e7490'}}>무한의</h1>
             <h1 className="text-5xl font-black text-pink-400 drop-shadow-[0_3px_0_white] -mt-1">산리오 계단</h1>
@@ -263,7 +266,7 @@ const Menu: React.FC<MenuProps> = ({
       {/* Settings Modal */}
       {isSettingsOpen && (
         <div className="absolute inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-6 animate-fadeIn">
-            <div className="bg-white rounded-[2rem] w-full max-w-sm p-6 shadow-2xl border-[4px] border-pink-200 relative flex flex-col gap-4">
+            <div className="bg-white rounded-[2rem] w-full max-w-sm p-6 shadow-2xl border-[4px] border-pink-200 relative flex flex-col gap-4 max-h-[90vh] overflow-y-auto no-scrollbar">
                 <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-pink-100 text-pink-500 font-black px-4 py-1 rounded-full border-2 border-white shadow-sm">
                     설정
                 </div>
@@ -275,6 +278,29 @@ const Menu: React.FC<MenuProps> = ({
                 </button>
 
                 <div className="mt-4 flex flex-col gap-4">
+                    {/* Controls Config Section */}
+                    <div className="bg-purple-50 p-4 rounded-xl border border-purple-100">
+                        <h3 className="font-bold text-purple-700 mb-2 flex items-center gap-2">🎮 컨트롤 설정</h3>
+                        <div className="flex justify-between items-center bg-white p-3 rounded-lg border border-purple-50 shadow-sm">
+                           <div className="flex gap-2 text-gray-600 text-sm font-bold items-center">
+                              <span>버튼 위치 변경</span>
+                           </div>
+                           <button 
+                             onClick={() => { onToggleButtonSwap(); soundManager.playStep(); }}
+                             className={`relative w-12 h-6 rounded-full transition-colors ${isButtonSwapped ? 'bg-purple-500' : 'bg-gray-300'}`}
+                           >
+                              <div className={`absolute top-1 left-1 bg-white w-4 h-4 rounded-full transition-transform ${isButtonSwapped ? 'translate-x-6' : ''}`} />
+                           </button>
+                        </div>
+                        <div className="flex justify-center mt-3 gap-4 text-xs font-bold text-gray-500 opacity-80">
+                            {isButtonSwapped ? (
+                                <div className="flex gap-1 items-center"><span className="bg-gray-200 p-1 rounded">방향전환</span> <span className="bg-pink-200 p-1 rounded">오르기</span></div>
+                            ) : (
+                                <div className="flex gap-1 items-center"><span className="bg-pink-200 p-1 rounded">오르기</span> <span className="bg-gray-200 p-1 rounded">방향전환</span></div>
+                            )}
+                        </div>
+                    </div>
+
                     {/* Save Section */}
                     <div className="bg-cyan-50 p-4 rounded-xl border border-cyan-100">
                         <h3 className="font-bold text-cyan-700 mb-1 flex items-center gap-2">📤 기록 저장 (내보내기)</h3>
