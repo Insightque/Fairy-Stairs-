@@ -32,9 +32,9 @@ export const STAIR_COLORS = [
 ];
 
 export const DIFFICULTY_SETTINGS = {
-  [Difficulty.EASY]: { decayMult: 1.2, baseDecay: 15, timerRefill: 10 },
-  [Difficulty.NORMAL]: { decayMult: 1.5, baseDecay: 17, timerRefill: 8 },
-  [Difficulty.HARD]: { decayMult: 1.8, baseDecay: 20, timerRefill: 7 }
+  [Difficulty.EASY]: { decayMult: 1.5, baseDecay: 15, timerRefill: 10 },
+  [Difficulty.NORMAL]: { decayMult: 2.3, baseDecay: 17, timerRefill: 8 },
+  [Difficulty.HARD]: { decayMult: 3.0, baseDecay: 20, timerRefill: 7 }
 };
 
 export const ITEM_INFO: Record<ItemType, { emoji: string, label: string, duration?: number, value?: number }> = {

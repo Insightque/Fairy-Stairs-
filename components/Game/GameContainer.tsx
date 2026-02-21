@@ -80,8 +80,8 @@ const GameContainer: React.FC<GameContainerProps> = ({ gameState, onGameOver, on
     // 4. 일반 동전 (난이도별 확률 적용)
     // 이지: 1/5 (20%), 보통: 2/5 (40%), 어려움: 3/5 (60%)
     let coinChance = 0.2;
-    if (gameState.difficulty === Difficulty.NORMAL) coinChance = 0.4;
-    if (gameState.difficulty === Difficulty.HARD) coinChance = 0.6;
+    if (gameState.difficulty === Difficulty.NORMAL) coinChance = 0.5;
+    if (gameState.difficulty === Difficulty.HARD) coinChance = 0.7;
 
     if (Math.random() < coinChance) {
       return ItemType.COIN;
